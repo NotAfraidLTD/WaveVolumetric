@@ -166,15 +166,15 @@ class DTWave: UIView {
         
         CGPathMoveToPoint(maskpath, nil, 0, height)
         
-        for var x:CGFloat = 0 ; x <= width; ++x {
+        for x in 1...Int(width) {
             
             Y = Float(height) * sinf(0.01 * Float(waveCurvature) * Float(x) + Float(offset) * 0.045)
-           
-            CGPathAddLineToPoint(path, nil, x, CGFloat(Y))
+            
+            CGPathAddLineToPoint(path, nil, CGFloat(x), CGFloat(Y))
             
             maskY = -Y
             
-            CGPathAddLineToPoint(maskpath, nil, x, CGFloat(maskY));
+            CGPathAddLineToPoint(maskpath, nil, CGFloat(x), CGFloat(maskY));
         }
         
         CGPathAddLineToPoint(path, nil, CGRectGetWidth(frame), CGRectGetHeight(frame))
