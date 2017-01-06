@@ -10,7 +10,7 @@ import UIKit
 
 class DTWave: UIView {
     
-    public var  plotRatio:      CGFloat = 0.6  { didSet{ setup(true) } }
+    public var  plotRatio:      CGFloat = 0.6  { didSet{ setup(restartTimer: true) } }
     
     public var valueString:     String?        { didSet{ balanceValue() } }
     
@@ -53,48 +53,48 @@ class DTWave: UIView {
         
         title = CATextLayer()
         
-        title?.frame = CGRectMake(0, frame.size.height/2 - 40, frame.size.width, 20)
+        title?.frame = CGRect.init( x:0, y:frame.size.height/2 - 40, width:frame.size.width, height:20)
         
-        title?.foregroundColor = UIColor.whiteColor().CGColor
+        title?.foregroundColor = UIColor.white.cgColor
         
         title?.alignmentMode = kCAAlignmentCenter
         
         title?.contentsScale = 1;
         
-        title?.wrapped = true;
+        title?.isWrapped = true;
         
         let font:UIFont
         
-        font = UIFont.systemFontOfSize(12)
+        font = UIFont.systemFont(ofSize: 12)
         
         title?.fontSize = font.pointSize;
         
         title?.string = "剩余购买额度"
         
-        title?.contentsScale = UIScreen.mainScreen().scale
+        title?.contentsScale = UIScreen.main.scale
         
         layer.addSublayer(title!)
         
         
         value = CATextLayer()
         
-        value?.frame = CGRectMake(0, frame.size.height/2, frame.size.width, 32)
+        value?.frame = CGRect.init( x:0, y:frame.size.height/2, width:frame.size.width,height:32)
         
-        value?.foregroundColor = UIColor.whiteColor().CGColor
+        value?.foregroundColor = UIColor.white.cgColor
         
         value?.alignmentMode = kCAAlignmentCenter
         
         value?.contentsScale = 1;
         
-        value?.wrapped = true;
+        value?.isWrapped = true;
         
         let valuefont:UIFont
         
-        valuefont = UIFont.systemFontOfSize(20)
+        valuefont = UIFont.systemFont(ofSize: 20)
         
         value?.fontSize = valuefont.pointSize;
     
-        value?.contentsScale = UIScreen.mainScreen().scale
+        value?.contentsScale = UIScreen.main.scale
         
         layer.addSublayer(value!)
         
@@ -116,7 +116,7 @@ class DTWave: UIView {
         
         realWaveLayer?.frame = Layerframe
         
-        realWaveLayer?.fillColor = realWaveColor.CGColor
+        realWaveLayer?.fillColor = realWaveColor.cgColor
         
         
         var  maskframe:CGRect = bounds
@@ -127,7 +127,7 @@ class DTWave: UIView {
         
         maskWaveLayer?.frame = maskframe
         
-        maskWaveLayer?.fillColor = maskWaveColor.CGColor
+        maskWaveLayer?.fillColor = maskWaveColor.cgColor
         
     }
     
@@ -142,60 +142,61 @@ class DTWave: UIView {
     {
         timer = CADisplayLink.init(target: self, selector:#selector(self.wave))
         
-        timer.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+        timer.add(to: RunLoop.current, forMode: RunLoopMode.commonModes)
     
     }
-    
+    //定时器触发后,图层发生偏移
     func wave(){
         
         offset += waveSpeed
         
-        let width = CGRectGetWidth(frame)
+        let width = frame.width
         
         let height = waveHeight
         
-        let path = CGPathCreateMutable()
+        let path = CGMutablePath()
         
         var maskY:  Float = 0.0
         
         var Y:   Float = 0.0
+        
+        path.move(to: CGPoint.init(x: 0, y: height))
+        
+        let maskpath = CGMutablePath()
+        
+        maskpath.move(to: CGPoint.init(x: 0, y: height))
 
-        CGPathMoveToPoint(path, nil, 0, height)
-        
-        let maskpath = CGPathCreateMutable()
-        
-        CGPathMoveToPoint(maskpath, nil, 0, height)
-        
         for x in 1...Int(width) {
             
             Y = Float(height) * sinf(0.01 * Float(waveCurvature) * Float(x) + Float(offset) * 0.045)
             
-            CGPathAddLineToPoint(path, nil, CGFloat(x), CGFloat(Y))
+            path.addLine(to: CGPoint.init(x: CGFloat(x), y: CGFloat(Y)))
             
             maskY = -Y
             
-            CGPathAddLineToPoint(maskpath, nil, CGFloat(x), CGFloat(maskY));
+            maskpath.addLine(to: CGPoint.init(x: CGFloat(x), y: CGFloat(maskY)))
+
         }
         
-        CGPathAddLineToPoint(path, nil, CGRectGetWidth(frame), CGRectGetHeight(frame))
+        path.addLine(to: CGPoint.init(x: frame.width, y: frame.height))
         
-        CGPathAddLineToPoint(path, nil, 0, CGRectGetHeight(frame))
-        
-        CGPathCloseSubpath(path)
+        path.addLine(to: CGPoint.init(x: 0, y: frame.height))
+
+        path.closeSubpath()
         
         realWaveLayer?.path = path
         
-        realWaveLayer?.fillColor = self.realWaveColor.CGColor
+        realWaveLayer?.fillColor = self.realWaveColor.cgColor
         
-        CGPathAddLineToPoint(maskpath, nil, CGRectGetWidth(frame), CGRectGetHeight(frame))
+        maskpath.addLine(to: CGPoint.init(x:frame.width, y: frame.height))
         
-        CGPathAddLineToPoint(maskpath, nil, 0, CGRectGetHeight(frame))
+        maskpath.addLine(to: CGPoint.init(x: 0, y: frame.height))
         
-        CGPathCloseSubpath(maskpath)
+        maskpath.closeSubpath()
         
         maskWaveLayer?.path = maskpath
         
-        maskWaveLayer?.fillColor = self.maskWaveColor.CGColor
+        maskWaveLayer?.fillColor = self.maskWaveColor.cgColor
         
     }
     
